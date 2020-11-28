@@ -1,0 +1,208 @@
+﻿
+@{
+    ViewBag.Title = "Doctor";
+    Layout = null;
+}
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+<link href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<style>
+    .logoutLblPos {
+        position: fixed;
+        right: 10px;
+        top: 5px;
+    }
+</style>
+<h2>Doctor Dashboard</h2>
+<label class="logoutLblPos">
+    <label id="User"></label>
+    <a class="nav-link" href="@Url.Action("Logout", "User")"> Logout</a>
+</label>
+
+
+<div style="border: solid 1px #ccc; padding: 30px 0 30px 20px; border-radius: 25px; width: 60%; margin: auto; display: table; background-color: bisque;">
+    <div class="container col-sm-12">
+        <hr />
+        <h2 style="text-align:center">Approve Appointment</h2><hr />
+        <table id="myTable" class="table table-condensed table-hover table-striped table-responsive">
+            <thead style="background-color:maroon !important; color:white !important">
+                <tr>
+                    <th hidden>
+                        ID
+                    </th>
+                    <th>
+                        Patient
+                    </th>
+                    <th>
+                        DateTime
+                    </th>                   
+                    <th>
+                        Description
+                    </th>   
+                    <th>
+                        Status
+                    </th>               
+                    <th>
+                        Action
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="tbody"></tbody>
+        </table>
+    </div>   
+    <input type="hidden" id="hiddenRejectId" />
+    <input type="hidden" id="hiddenApproveId" />
+</div>
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Reject Appointment</h3>
+                <a style="color:red !important" href="#" class="close" data-dismiss="modal">&times;</a>
+            </div>
+            <div class="modal-body">
+                <h4>Are you sure you want to reject this appointment?</h4>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <a style="color: white !important" href="#" class="btn btn-danger" data-dismiss="modal">Cancel</a>
+                <a style="color:white !important" href="#" class="btn btn-success" onclick="Reject()">Confirm</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        var SessionVariable ="Welcome " + '@Session["Username"]' + " | Doctor";
+        $("#User").text(SessionVariable).css("font-weight", "Bold");
+        loadData();
+    });
+   
+    function loadData() {
+        $.ajax({
+            url: "/Appointment/GetApproveList",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var html = '';
+                $.each(result, function (key, item) {
+                    html += '<tr>';
+                    html += '<td hidden>' + item.ID + '</td>';                  
+                    html += '<td>' + item.Patient + '</td>';
+                    html += '<td>' + item.Datetime + '</td>';
+                    html += '<td>' + item.Description + '</td>';
+                    html += '<td>' + item.Status + '</td>';
+                    if (item.Status == 'Approved') {
+                        html += '<td><a data-toggle="tooltip" data-placement="top" title="Reject" href="#" style="color:Red !important" onclick="ConfirmReject(' + item.ID + ')"><span class="fa fa-remove" style="font-size:24px"></span></a></td>';
+
+                    }
+                    else {
+                        html += '<td><a data-toggle="tooltip" data-placement="top" title="Approve" style="color:Green !important" href="#"  onclick="ConfirmApprove(' + item.ID + ')"><span class="fa fa-thumbs-up" style="font-size:24px"></span></a> | <a data-toggle="tooltip" data-placement="top" title="Reject" href="#" style="color:Red !important" onclick="ConfirmReject(' + item.ID + ')"><span class="fa fa-remove" style="font-size:24px"></span></a></td>';
+                    }
+                    html += '</tr>';
+
+
+                });
+                $('.tbody').html(html);
+                $('#myTable').DataTable();
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+
+    var ConfirmReject = function (ID) {
+        $("#hiddenRejectId").val(ID);
+        $("#myModal").modal('show');
+    }
+
+    function Reject() {
+        var userId = $("#hiddenRejectId").val();
+        debugger;
+
+        var url = "/Appointment/Approve/";
+        var empObj = {
+            ID: userId, IsApproved: false,
+        };
+        $.ajax({
+            url: url,
+            data: JSON.stringify(empObj),
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                $("#myModal").modal("hide");
+                alert(result);
+                setTimeout(function () {// wait for 5 secs(2)
+                    location.reload(); // then reload the page.(3)
+                }, 1000);
+                                   
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+
+        //}
+    }
+  
+
+    var ConfirmApprove = function (ID) {       
+        $("#hiddenApproveId").val(ID);
+        Approve();
+    }
+
+
+
+    function Approve() {
+        var userId = $("#hiddenApproveId").val();
+        debugger;       
+
+        var url = "/Appointment/Approve/";
+        var empObj = {
+           ID: userId, IsApproved: true,
+        };
+        $.ajax({
+            url: url,
+            data: JSON.stringify(empObj),
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {               
+                alert(result);
+                setTimeout(function () {// wait for 5 secs(2)
+                    location.reload(); // then reload the page.(3)
+                }, 1000);
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+
+        //}
+    }
+
+  
+</script>
+
+

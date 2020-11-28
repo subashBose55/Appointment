@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
+    h2.headertekst {
+        text-align: center;
+    }
+</style>
+<br />
+<div>
+    <h2 class="headertekst">Login</h2>
+</div>
+    <div style="border: solid 1px #ccc; padding: 30px 0 30px 30px; border-radius: 25px; width: 325px; margin: auto; display: table; background-color: bisque;">
+        <table>
+            <tr>
+                <td valign="top">
+                    <label>Role:</label>
+                </td>
+                <td>
+                    @Html.DropDownList("Roles", null, "---Select Role----", new { @id = "ddlRole" })                   
+                    <br />
+                    <div style="height: 20px;">
+                    </div>
+                </td>
+            </tr> 
+            <tr>
+                <td valign="top">                
+                  <label>  UserName:</label>
+                </td>
+                <td>                  
+                    <input type="text" id="txtuserid" class="fadeIn second" name="Username" placeholder="Username">
+                   
+                    <div style="height: 20px;">                      
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">            
+                <label>Password:</label>
+            </td>
+            <td>            
+                <input type="password" id="txtpassword" class="fadeIn third" name="password" placeholder="password">
+                <div style="height: 20px;">                 
+            </div>
+        </td>
+    </tr>
+                      
+    <tr>
+        <td></td>
+        <td>           
+            <input type="button" value="Login" id="btnlogin" onclick="javascript:ValidateUser();" />
+            <input type="button" value="Reset" id="btnReset" onclick="javascript:Reset();" />
+        </td>
+    </tr>
+            <tr>
+                <td colspan="2">
+                    <div id="msg"  style="color:red; text-align:center"> Invalid Username Or Password</div>
+                </td>
+            </tr>
+</table>
+</div>
+     
+
+
+<script>
+    
+    //Login System
+   $("#msg").hide();
+   $("#ddlRole").focus();
+
+
+   $('#txtuserid').keydown(function (event) {
+       var keyCode = (event.keyCode ? event.keyCode : event.which);
+       if (keyCode == 13) {
+           $('#btnlogin').trigger('click');
+       }
+   });
+   $('#txtpassword').keydown(function (event) {
+       var keyCode = (event.keyCode ? event.keyCode : event.which);
+       if (keyCode == 13) {
+           $('#btnlogin').trigger('click');
+       }
+   });
+
+   function Reset() {
+       $("#txtuserid").val("");
+       $("#txtpassword").val("");
+       $("#ddlRole").focus();
+   }
+
+    function ValidateUser() {
+        var userid = $("#txtuserid").val();
+        var password = $("#txtpassword").val();
+        var Roleid = jQuery("#ddlRole option:selected").val();       
+        $("#msg").empty();
+     if (Roleid == "") {
+        //  jQuery("label#select_error").show(); // show Warning 
+            $("#msg").html("Please select the role");
+            $("#msg").show();
+            return;
+        //jQuery("select#sel").focus();  // Focus the select box    )
+        }
+     else if (userid == "")
+        {
+            $("#msg").html("Please enter the Username");
+            $("#msg").show();
+            $("#txtuserid").focus();
+            return;
+        }
+        else if (password == "") {
+            $("#msg").html("Please enter the Password");
+            $("#msg").show();
+            $("#txtpassword").focus();
+            return;
+        }
+       
+        var url = "/User/Login/";
+        //$("#btnlogin").val('Plesae wait..');
+        $.ajax({
+            url: url,
+            data: { UserName: userid, Password: password, RoleID: Roleid },
+            cache: false,
+            type: "POST",
+            success: function (data) {
+                if (data == "1") {                  
+                    if(Roleid=="1")
+                    {
+                        window.location.href = "@Url.Action("Admin", "User")";
+                    }
+                    else if (Roleid == "2") {
+                        window.location.href = "@Url.Action("Doctor", "User")";
+                    }
+                    else if (Roleid == "3") {
+                        window.location.href = "@Url.Action("Patient", "User")";
+                    }                   
+                } else {
+                   // alert("Invalid user id and password.");                  
+                    $("#msg").html("Invalid user id and password.");
+                    $("#msg").show();
+                    $("#txtuserid").focus();
+                   // window.location.href = "@Url.Action("Index", "Admin")";
+                }
+                $("#txtuserid").val("");
+                $("#txtpassword").val("");
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+        // $("#btnlogin").val('Login');
+    }
+</script>

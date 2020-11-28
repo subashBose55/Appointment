@@ -1,0 +1,296 @@
+﻿
+@{
+    ViewBag.Title = "Admin";
+    Layout = null;
+}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
+    .logoutLblPos {
+        position: fixed;
+        right: 10px;
+        top: 5px;
+    }   
+</style>
+
+    <h2>Admin Dashboard</h2>  
+
+
+<label class="logoutLblPos">  
+    <label id="User"></label>
+    <a class="nav-link" href="@Url.Action("Logout", "User")"> Logout</a>
+</label>
+
+<div style="border: solid 1px #ccc; padding: 30px 0 30px 200px; border-radius: 25px; width: 50%; margin: auto; display: table; background-color: bisque; ">
+    <table>   
+        <tr>
+            <td valign="top">
+                <label>Role:</label>
+            </td>
+            <td>
+                @Html.DropDownList("AdminRoles", null, "---Select Role----", new { @id = "ddlRole" })
+                @* @Html.DropDownList("CompanyId", ViewBag.CompanyList as SelectList, "Select Company", new { @id = "ddlCompany" })*@
+                <br />
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>     
+        <tr>
+            <td valign="top">
+                <label>  FirstName:</label>
+            </td>
+            <td>
+
+                <input type="text" id="txtFirstName" class="fadeIn second" name="FirstName" placeholder="FirstName">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  LastName:</label>
+            </td>
+            <td>
+
+                <input type="text" id="txtLastName" class="fadeIn second" name="LastName" placeholder="LastName">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  Email:</label>
+            </td>
+            <td>
+
+                <input type="text" id="txtEmail" class="fadeIn second" name="Email" placeholder="Email">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  Mobile:</label>
+            </td>
+            <td>
+
+                <input type="text" id="txtMobile" class="fadeIn second" name="Mobile" placeholder="Mobile">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  DOB:</label>
+            </td>
+            <td>
+
+                <input type="date" id="dtDOB" class="fadeIn second" name="DOB" placeholder="DOB">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  UserName:</label>
+            </td>
+            <td>
+
+                <input type="text" id="txtUsername" class="fadeIn second" name="Username" placeholder="Username">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>Password:</label>
+            </td>
+            <td>
+                <input type="password" id="txtpassword" class="fadeIn third" name="password" placeholder="password">
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>Confirm Password:</label>
+            </td>
+            <td>
+                <input type="password" id="txtConfirmpassword" class="fadeIn third" name="Confirmpassword" placeholder="Confirmpassword">
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" value="Save" id="btnlogin" onclick="javascript:ValidateUser();" />
+                <input type="button" value="Reset" id="btnReset" onclick="javascript:Reset();" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="msg" style="color: red; text-align: center""> Required</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<script>
+    $(document).ready(function () {             
+        var SessionVariable ="Welcome " + '@Session["Username"]' + " | Admin";       
+        $("#User").text(SessionVariable).css("font-weight", "Bold");
+    });
+    function ValidateEmail(email) {
+        var expr = /^([\w-\.]+)((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        return expr.test(email);
+    };
+
+   $("#msg").hide();
+   $("#ddlRole").focus();
+
+   function Reset() {
+       $("#txtFirstName").val("");
+       $("#txtLastName").val("");
+       $("#txtEmail").val("");
+       $("#txtMobile").val("");
+       $("#dtDOB").val("");
+       $("#txtUsername").val("");
+       $("#txtpassword").val("");
+       $("#txtConfirmpassword").val("");
+       $("#ddlRole").focus();
+       $("#msg").hide();
+   }
+
+    function ValidateUser() {
+        var FirstName = $("#txtFirstName").val();
+        var LastName = $("#txtLastName").val();
+        var Email = $("#txtEmail").val();
+        var Mobile = $("#txtMobile").val();
+        var dtDOB = $("#dtDOB").val();
+        var Username = $("#txtUsername").val();
+        var password = $("#txtpassword").val();
+        var Confirmpassword = $("#txtConfirmpassword").val();
+        var Roleid = jQuery("#ddlRole option:selected").val();
+        $("#msg").empty();
+     if (Roleid == "") {
+        //  jQuery("label#select_error").show(); // show Warning
+            $("#msg").html("Please select the role");
+            $("#msg").show();
+            return;
+        //jQuery("select#sel").focus();  // Focus the select box    )
+        }
+     else if (FirstName == "")
+        {
+         $("#msg").html("Please enter the FirstName");
+            $("#msg").show();
+            $("#txtFirstName").focus();
+            return;
+     }
+     else if (LastName == "") {
+         $("#msg").html("Please enter the LastName");
+         $("#msg").show();
+         $("#txtLastName").focus();
+         return;
+     }
+     else if (Email == "") {
+         $("#msg").html("Please enter the Email");
+         $("#msg").show();
+         $("#txtEmail").focus();
+         return;
+     }
+     else if (Mobile == "") {
+         $("#msg").html("Please enter the Mobile number");
+         $("#msg").show();
+         $("#txtMobile").focus();
+         return;
+     }
+     else if (dtDOB == "") {
+         $("#msg").html("Please enter the DOB");
+         $("#msg").show();
+         $("#dtDOB").focus();
+         return;
+     }
+     else if (Username == "") {
+         $("#msg").html("Please enter the Username");
+         $("#msg").show();
+         $("#txtUsername").focus();
+         return;
+     }
+        else if (password == "") {
+            $("#msg").html("Please enter the Password");
+            $("#msg").show();
+            $("#txtpassword").focus();
+            return;
+        }
+        else if (Confirmpassword == "") {
+            $("#msg").html("Please enter the Confirmpassword");
+            $("#msg").show();
+            $("#txtConfirmpassword").focus();
+            return;
+        }
+     if (password != Confirmpassword)
+     {
+         $("#msg").html("Password not matched with Confirmpassword");
+         $("#msg").show();
+         $("#txtConfirmpassword").focus();
+         return;
+     }
+     //if (!ValidateEmail(Email)) {
+     //    $("#msg").html("Invalid email address.");
+     //    $("#msg").show();
+     //    $("#txtEmail").focus();
+     //    return;        
+     //}    
+     if (Mobile.length <10) {
+         $("#msg").html("Mobile number should contains 10 digits");
+         $("#msg").show();
+         $("#txtMobile").focus();
+         return;
+     }
+     if (password.length < 6) {
+         $("#msg").html("Password should contains atleast 6 characters");
+         $("#msg").show();
+         $("#txtpassword").focus();
+         return;
+     }
+     var url = "/User/AddUser/";
+        //$("#btnlogin").val('Plesae wait..');   
+     var empObj = {
+         FirstName: FirstName, LastName: LastName, Email: Email, Mobile: Mobile, DOB: dtDOB,
+         UserName: Username, Password: password, RoleID: Roleid
+     };
+     $.ajax({
+         url: url,
+         data: JSON.stringify(empObj),
+         type: "POST",
+         contentType: "application/json;charset=utf-8",
+         dataType: "json",                                    
+         success: function (result) {
+             if (result.indexOf("has already exists.") > -1) {              
+                 $("#msg").html(result);
+                 $("#msg").show();
+                 $("#txtUsername").focus();
+                 return;
+             }
+             else
+             {
+                 alert(result);               
+                 Reset();                
+             }
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });       
+}
+</script>

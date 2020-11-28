@@ -1,0 +1,150 @@
+﻿
+@{
+    ViewBag.Title = "Patient";
+    Layout = null;
+}
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
+    .logoutLblPos {
+        position: fixed;
+        right: 10px;
+        top: 5px;
+    }
+</style>
+<h2>Patient Dashboard</h2>
+<label class="logoutLblPos">
+    <label id="User"></label>
+    <a class="nav-link" href="@Url.Action("Logout", "User")"> Logout</a>
+</label>
+
+<div style="border: solid 1px #ccc; padding: 30px 0 30px 40px; border-radius: 25px; width: 50%; margin: auto; display: table; background-color: bisque; ">
+    <table>
+        <tr>
+            <td valign="top">
+                <label>Doctor:</label>
+            </td>
+            <td>
+                @Html.DropDownList("Doctor", null, "---Select Doctor----", new { @id = "ddlDoctor" })
+                @* @Html.DropDownList("CompanyId", ViewBag.CompanyList as SelectList, "Select Company", new { @id = "ddlCompany" })*@
+                <br />
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  Appointment Datetime:</label>
+            </td>
+            <td>
+
+                <input type="datetime-local" id="dtDatetime" class="fadeIn second" name="Datetime" placeholder="Datetime">
+
+                <div style="height: 20px;">
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <label>  Description:</label>
+            </td>
+            <td>
+                <textarea id="txtDescription" class="fadeIn second" name="Description" placeholder="Description" rows="4" cols="50"></textarea>                  
+                    <div style="height: 20px;">
+                    </div>
+</td>
+        </tr>
+       
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" value="Get Appointment" id="btnAppointment" onclick="javascript:ValidateUser();" />
+                <input type="button" value="Reset" id="btnReset" onclick="javascript:Reset();" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="msg" style="color:red;"> Required</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        var SessionVariable ="Welcome " + '@Session["Username"]' + " | Patient";
+        $("#User").text(SessionVariable).css("font-weight","Bold");
+    });   
+
+   $("#msg").hide();
+   $("#ddlDoctor").focus();
+
+   function Reset() {
+       $("#ddlDoctor").val("");
+       $("#dtDatetime").val("");
+       $("#txtDescription").val("");     
+       $("#ddlDoctor").focus();
+       $("#msg").hide();
+   }
+
+    function ValidateUser() {
+        var Description = $("#txtDescription").val();       
+        var dtDatetime = $("#dtDatetime").val();       
+        var Docid = jQuery("#ddlDoctor option:selected").val();
+        $("#msg").empty();
+        if (Docid == "") {
+        //  jQuery("label#select_error").show(); // show Warning
+            $("#msg").html("Please select the doctor");
+            $("#msg").show();
+            return;
+        //jQuery("select#sel").focus();  // Focus the select box    )
+        }
+        else if (dtDatetime == "") {
+            $("#msg").html("Please enter the date and time");
+            $("#msg").show();
+            $("#dtDatetime").focus();
+            return;
+        }
+        else if (Description == "")
+        {
+            $("#msg").html("Please enter the Description");
+            $("#msg").show();
+            $("#txtDescription").focus();
+            return;
+     }
+        debugger;
+        var url = "/Appointment/GetAppointment/";      
+     var empObj = {
+         Description: Description, Date: dtDatetime, DoctorID: Docid, IsApproved: false,
+     };
+     $.ajax({
+         url: url,
+         data: JSON.stringify(empObj),
+         type: "POST",
+         contentType: "application/json;charset=utf-8",
+         dataType: "json",
+         success: function (result) {
+             if (result.indexOf("has appointment") > -1) {
+                 $("#msg").html(result);
+                 $("#msg").show();
+                 $("#ddlDoctor").focus();
+                 return;
+             }
+             else
+             {
+                 alert(result);
+                 Reset();
+             }
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+}
+</script>
+
+
